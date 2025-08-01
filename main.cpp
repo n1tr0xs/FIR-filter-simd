@@ -40,8 +40,10 @@ int main() {
 	int output_size = input_size;
 
 	for (int filter_length : filter_lengths) {
+		std::cout << "Filter length: " << filter_length << "\n";
+		
 		if (filter_length >= input_size) {
-			std::cerr << "Skipping filter length " << filter_length << " (too long for input)\n";
+			std::cerr << "Skipping: filter length too long for input\n";
 			continue;
 		}
 
