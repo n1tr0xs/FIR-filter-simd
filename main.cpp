@@ -104,9 +104,7 @@ int main() {
 		std::vector<float> out_simd(output_size);
 
 		generate_data(input);
-		std::cout << "Input data generated.\n";
 		generate_data(coeffs);
-		std::cout << "Coeffs data generated.\n";
 
 		double t1 = benchmark(fir_scalar, input, coeffs, out_scalar);
 		double t2 = benchmark(fir_simd, input, coeffs, out_simd);
