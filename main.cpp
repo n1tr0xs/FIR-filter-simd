@@ -25,6 +25,45 @@ void fir_scalar(const std::vector<float>& input, const std::vector<float>& coeff
 	}
 }
 
+// SIMD-оптимизированная реализация FIR фильтра (SSE)
+void fir_simd(const std::vector<float>& input,
+	const std::vector<float>& coeffs,
+	std::vector<float>& output) {
+	size_t filter_len = coeffs.size();   // Длина фильтра (импульсная характеристика)
+	size_t output_len = output.size();   // Сколько значений нужно записать
+
+	// Проверка: input должен быть не короче, чем output + filter_len - 1
+	if (input.size() < output_len + filter_len - 1) {
+		throw std::runtime_error("fir_simd: input.size() < output.size() + coeffs.size() - 1");
+	}
+
+	size_t j_limit = filter_len & ~3U;  // filter_len округляется вниз до ближайшего кратного 4
+
+	for (size_t i = 0; i < output_len; ++i) {
+		__m128 acc = _mm_setzero_ps();
+		size_t j = 0;
+
+		// Основная часть: по 4 элемента с использованием SSE
+		for (; j < j_limit; j += 4) {
+			__m128 in_vec = _mm_loadu_ps(&input[i + j]);   // 4 входных значения
+			__m128 coef_vec = _mm_loadu_ps(&coeffs[j]);    // 4 коэффициента фильтра
+			acc = _mm_add_ps(acc, _mm_mul_ps(in_vec, coef_vec)); // acc += input * coeffs
+		}
+
+		// Суммируем значения в регистре acc
+		float sum[4];
+		_mm_storeu_ps(sum, acc);
+		float total = sum[0] + sum[1] + sum[2] + sum[3];
+
+		// Остаток (если filter_len не кратен 4)
+		for (; j < filter_len; ++j) {
+			total += input[i + j] * coeffs[j];
+		}
+
+		output[i] = total;
+	}
+}
+
 void generate_data(std::vector<float>& data) {
 	std::mt19937 rng(42);
 	std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
