@@ -1,6 +1,8 @@
-#include <random>
 #include <iostream>
 #include <vector>
+#include <chrono>
+#include <random>
+#include <immintrin.h>  // SSE/AVX intrinsics
 
 // Неоптимизированная реализация FIR фильтра
 void fir_scalar(const std::vector<float>& input, const std::vector<float>& coeffs, std::vector<float>& output) {
@@ -105,6 +107,21 @@ int main() {
 		std::cout << "Input data generated.\n";
 		generate_data(coeffs);
 		std::cout << "Coeffs data generated.\n";
+
+		double t1 = benchmark(fir_scalar, input, coeffs, out_scalar);
+		double t2 = benchmark(fir_simd, input, coeffs, out_simd);
+
+		float max_diff = 0.0f;
+		for (size_t i = 0; i < output_size - filter_length + 1; ++i) {
+			max_diff = std::max(max_diff, std::abs(out_scalar[i] - out_simd[i]));
+		}
+
+		std::cout
+			<< "Scalar: " << t1 << "s"
+			<< "\tSIMD: " << t2 << "s"
+			<< "\tSpeedup: " << t1 / t2
+			<< "\tMax diff: " << max_diff 
+			<< '\n';
 	}
 
 	return 0;
