@@ -72,6 +72,16 @@ void generate_data(std::vector<float>& data) {
 	}
 }
 
+// Измерение времени выполнения функции
+template <typename Func>
+double benchmark(Func f, const std::vector<float>& input, const std::vector<float>& coeffs, std::vector<float>& output) {
+	auto start = std::chrono::high_resolution_clock::now();
+	f(input, coeffs, output);
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> dur = end - start;
+	return dur.count();
+}
+
 int main() {
 
 	std::vector<int> filter_lengths = { 4, 8, 16, 32, 64, 128, 256, 512, 1024 };
