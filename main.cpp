@@ -92,7 +92,7 @@ int main() {
 
 	for (int filter_length : filter_lengths) {
 		std::cout << "Filter length: " << filter_length << "\n";
-		
+
 		if (filter_length >= input_size) {
 			std::cerr << "Skipping: filter length too long for input\n";
 			continue;
@@ -118,7 +118,7 @@ int main() {
 			<< "Scalar: " << t1 << "s"
 			<< "\tSIMD: " << t2 << "s"
 			<< "\tSpeedup: " << t1 / t2
-			<< "\tMax diff: " << max_diff 
+			<< "\tMax diff: " << max_diff
 			<< '\n';
 	}
 
